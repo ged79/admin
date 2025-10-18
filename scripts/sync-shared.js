@@ -1,33 +1,33 @@
 /**
  * Smart Sync Script for @flower/shared
- * 
- * This script copies packages/shared to apps/admin/src/shared
- * Maintains packages/shared as the single source of truth
- * Run automatically before build and dev
+ * Falls back to skipping if packages/shared not found (for deployment)
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Paths
 const SOURCE_DIR = path.resolve(__dirname, '../../../packages/shared/src');
 const TARGET_DIR = path.resolve(__dirname, '../src/shared');
 
-// Colors for console output
 const colors = {
   reset: '\x1b[0m',
   green: '\x1b[32m',
   yellow: '\x1b[33m',
   blue: '\x1b[36m',
-  red: '\x1b[31m'
 };
 
 function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
+// Check if source exists
+if (!fs.existsSync(SOURCE_DIR)) {
+  log('⚠️  packages/shared not found - skipping sync (deployment mode)', 'yellow');
+  log('✅ Using existing src/shared/', 'green');
+  process.exit(0);
+}
+
 function copyRecursive(src, dest) {
-  // Create destination directory if it doesn't exist
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
@@ -41,13 +41,11 @@ function copyRecursive(src, dest) {
     if (entry.isDirectory()) {
       copyRecursive(srcPath, destPath);
     } else {
-      // Skip backup files
       if (entry.name.endsWith('.backup') || 
           entry.name.endsWith('_old.ts') || 
           entry.name.endsWith('.old.ts')) {
         continue;
       }
-
       fs.copyFileSync(srcPath, destPath);
       log(`  ✓ ${entry.name}`, 'green');
     }
@@ -66,20 +64,11 @@ function main() {
   log(`📁 Source: ${SOURCE_DIR}`, 'blue');
   log(`📁 Target: ${TARGET_DIR}`, 'blue');
 
-  // Check if source exists
-  if (!fs.existsSync(SOURCE_DIR)) {
-    log('\n❌ Error: packages/shared/src not found!', 'red');
-    log('Make sure you are in the monorepo root.', 'red');
-    process.exit(1);
-  }
-
   try {
-    // Clean and copy
     cleanTargetDir();
     log('\n📦 Copying files...', 'blue');
     copyRecursive(SOURCE_DIR, TARGET_DIR);
 
-    // Success
     log('\n✅ Smart Sync completed successfully!', 'green');
     log(`📊 Admin now has an independent copy of shared code`, 'green');
     log(`💡 packages/shared remains the single source of truth\n`, 'yellow');
