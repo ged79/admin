@@ -34,7 +34,7 @@ interface DashboardMetrics {
 interface ProblemOrder {
   id: string
   order_number: string
-  source: 'homepage' | 'client'
+  source: 'homepage' | 'client' | 'funeral'
   type: 'unassigned' | 'waiting' | 'delayed'
   duration: number
   store_name?: string
