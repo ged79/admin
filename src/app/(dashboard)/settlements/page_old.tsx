@@ -70,7 +70,7 @@ export default function SettlementsPage() {
         .order('business_name')
 
       if (error) throw error
-      setStores(data || [])
+      setStores(data as any || [])
     } catch (error) {
       console.error('Failed to load stores:', error)
     }
