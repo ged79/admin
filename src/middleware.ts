@@ -10,8 +10,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes - check cookie existence only
-  const authCookie = request.cookies.get('sb-access-token') || 
-                     request.cookies.get('supabase-auth-token')
+  const authCookie = request.cookies.get('sb-qvgxqluwumbgslbxaeaq-auth-token')
   
   if (!authCookie) {
     return NextResponse.redirect(new URL('/login', request.url))

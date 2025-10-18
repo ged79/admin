@@ -42,7 +42,11 @@ export default function AdminLoginPage() {
       }
 
       toast.success('로그인 성공')
-      router.push('/dashboard')
+      
+      // Force redirect with delay
+      setTimeout(() => {
+        window.location.replace('/dashboard')
+      }, 500)
     } catch (error: any) {
       toast.error(error.message || '로그인 실패')
     } finally {
