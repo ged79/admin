@@ -2,7 +2,7 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  // output: 'standalone', // Windows symlink 에러로 인해 비활성화
   swcMinify: true,
   poweredByHeader: false,
   

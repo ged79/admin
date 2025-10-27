@@ -104,6 +104,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: '기존 주문', href: '/orders', icon: ClipboardList },
     { name: '상품 관리', href: '/products', icon: ShoppingBag },
     { name: '가맹점 관리', href: '/florists', icon: Store },
+    { name: '장례식장 관리', href: '/funeral-homes', icon: Users },
     { name: '정산 관리', href: '/accounting', icon: Calculator },
     { name: '수익 분석', href: '/accounting/settlements', icon: TrendingUp },
     { name: '공지사항', href: '/notices', icon: Megaphone },

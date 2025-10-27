@@ -208,79 +208,96 @@ export function toUnifiedOrder(order: any, source: 'homepage' | 'client'): Unifi
   return {
     id: order.id,
     source: 'client',
-    order_number: order.order_number,
-    status: order.status,
+    order_number: order.order_number || `C-${order.id.slice(0, 8)}`,
+    status: order.status || 'pending',
     created_at: order.created_at,
     updated_at: order.updated_at,
     
     customer: {
-      name: order.sender_store?.business_name || 'Unknown',
+      name: order.sender_store?.owner_name || order.sender_store?.name || '발신 화원',
       phone: order.sender_store?.phone || '',
-      company: order.sender_store?.business_name
+      company: order.sender_store?.name
     },
     
     recipient: {
       name: order.recipient_name,
       phone: order.recipient_phone,
       address: {
-        sido: order.delivery_address?.sido || '',
-        sigungu: order.delivery_address?.sigungu || '',
-        dong: order.delivery_address?.dong || '',
-        detail: order.delivery_address?.detail || '',
-        full_text: `${order.delivery_address?.sido} ${order.delivery_address?.sigungu} ${order.delivery_address?.dong} ${order.delivery_address?.detail}`
+        sido: order.recipient_address?.sido || '',
+        sigungu: order.recipient_address?.sigungu || '',
+        dong: order.recipient_address?.dong || '',
+        detail: order.recipient_address?.detail || '',
+        postal_code: order.recipient_address?.postal_code,
+        full_text: typeof order.recipient_address === 'string'
+          ? order.recipient_address
+          : `${order.recipient_address?.sido} ${order.recipient_address?.sigungu} ${order.recipient_address?.dong} ${order.recipient_address?.detail}`
       }
     },
     
     delivery: {
       date: order.delivery_date,
-      time: order.delivery_time,
+      time: order.delivery_time || '오전',
       status: 'normal'
     },
     
     product: {
-      type: order.product?.type || 'unknown',
-      name: order.product?.name || '',
-      quantity: 1,
-      ribbon_text: order.product?.ribbon_text,
+      type: order.product_category,
+      name: order.product_name,
+      quantity: order.quantity || 1,
+      ribbon_text: order.ribbon_text,
       special_instructions: order.special_instructions
     },
     
     pricing: {
-      base_price: order.product?.price || 0,
-      selling_price: order.product?.price || 0,
-      commission: order.commission || 0,
-      commission_rate: 0.25,
-      final_amount: order.product?.price || 0,
+      base_price: order.florist_price || 0,
+      selling_price: order.florist_price || 0,
+      commission: order.commission_amount || 0,
+      commission_rate: order.commission_rate || 0.05,
+      final_amount: order.total_amount || 0,
       
       client_detail: {
-        florist_price: order.product?.price || 0,
+        florist_price: order.florist_price || 0,
         additional_fee: order.additional_fee || 0,
         additional_fee_reason: order.additional_fee_reason,
-        points_before: 0,
-        points_after: 0
+        points_before: order.points_before || 0,
+        points_after: order.points_after || 0
       }
     },
     
     stores: {
-      sender: order.sender_store ? {
+      sender: order.sender_store_id ? {
         id: order.sender_store_id,
-        name: order.sender_store.business_name,
-        phone: order.sender_store.phone,
-        owner_name: order.sender_store.owner_name
+        name: order.sender_store?.name || '발신 화원',
+        phone: order.sender_store?.phone || '',
+        owner_name: order.sender_store?.owner_name,
+        points_balance: order.sender_store?.points_balance
       } : undefined,
-      receiver: order.receiver_store ? {
+      receiver: order.receiver_store_id ? {
         id: order.receiver_store_id,
-        name: order.receiver_store.business_name,
-        phone: order.receiver_store.phone,
-        owner_name: order.receiver_store.owner_name
+        name: order.receiver_store?.name || '수신 화원',
+        phone: order.receiver_store?.phone || '',
+        owner_name: order.receiver_store?.owner_name,
+        is_open: order.receiver_store?.is_open,
+        acceptance_time: order.accepted_at,
+        completion_time: order.completed_at
       } : undefined
     },
     
     tracking: {
-      assigned_at: order.created_at,
+      assigned_at: order.assigned_at,
       accepted_at: order.accepted_at,
-      completed_at: order.completed_at
+      prepared_at: order.prepared_at,
+      delivered_at: order.delivered_at,
+      completed_at: order.completed_at,
+      cancelled_at: order.cancelled_at,
+      cancel_reason: order.cancel_reason
     },
+    
+    completion: order.completion_photos || order.completion_memo ? {
+      photos: order.completion_photos,
+      memo: order.completion_memo,
+      delivered_by: order.delivered_by
+    } : undefined,
     
     _original: order
   }
